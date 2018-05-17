@@ -724,20 +724,30 @@ function apply_type_tfunc(@nospecialize(headtypetype), @nospecialize args...)
     elseif isconstType(headtypetype)
         headtype = headtypetype.parameters[1]
     else
-        return Any
+        return Type
     end
     largs = length(args)
     if headtype === Union
         largs == 0 && return Const(Bottom)
-        largs == 1 && return args[1]
+        hasnonType = false
         for i = 1:largs
             ai = args[i]
-            if !isa(ai, Const) || !isa(ai.val, Type)
+            if isa(ai, Const)
+                if !isa(ai.val, Type)
+                    return Union{}
+                end
+            else
                 if !isType(ai)
-                    return Any
+                    if !isa(ai, Type) || ai <: Type || Type <: ai
+                        hasnonType = true
+                    else
+                        return Union{}
+                    end
                 end
             end
         end
+        largs == 1 && return (!isa(args[1], Type) || args[1] <: Type) ? args[1] : Type
+        hasnonType && return Type
         ty = Union{}
         allconst = true
         for i = 1:largs
@@ -754,8 +764,7 @@ function apply_type_tfunc(@nospecialize(headtypetype), @nospecialize args...)
     end
     istuple = (headtype == Tuple)
     if !istuple && !isa(headtype, UnionAll)
-        # TODO: return `Bottom` for trying to apply a non-UnionAll
-        return Any
+        return Union{}
     end
     uncertain = false
     canconst = true
@@ -773,7 +782,6 @@ function apply_type_tfunc(@nospecialize(headtypetype), @nospecialize args...)
             canconst = false
             push!(tparams, ai.tv)
         else
-            # TODO: return `Bottom` for trying to apply a non-UnionAll
             uncertain = true
             # These blocks improve type info but make compilation a bit slower.
             # XXX
