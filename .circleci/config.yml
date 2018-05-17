@@ -61,6 +61,10 @@ jobs:
           make check -C /tmp/julia/share/julia/test/embedding \
             JULIA=/tmp/julia/bin/julia BIN=/tmp/embedding-test \
             "$(cd julia-src && make print-CC)" &&
+          if [ $ARCH = "x86_64" ]; then
+            pushd julia-src
+            make -C doc doctest=true
+            popd; fi &&
           mv julia-src project
 #      - run: cd project && make -C doc deploy
       - run:
