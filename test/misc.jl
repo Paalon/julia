@@ -110,7 +110,7 @@ end
 # task switching
 
 @noinline function f6597(c)
-    t = @schedule nothing
+    t = @async nothing
     finalizer(t -> c[] += 1, t)
     Base._wait(t)
     @test c[] == 0
@@ -118,7 +118,7 @@ end
     nothing
 end
 let c = Ref(0),
-    t2 = @schedule (wait(); c[] += 99)
+    t2 = @async (wait(); c[] += 99)
     @test c[] == 0
     f6597(c)
     GC.gc() # this should run the finalizer for t

@@ -1669,6 +1669,8 @@ end
 @deprecate next(s::AbstractString, i::Integer) iterate(s, i)
 @deprecate done(s::AbstractString, i::Integer) i > ncodeunits(s)
 
+@eval @deprecate $(Symbol("@schedule")) $(Symbol("@async"))
+
 # END 0.7 deprecations
 
 # BEGIN 1.0 deprecations
