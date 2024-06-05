@@ -343,4 +343,27 @@ function _isequal_normalized!(s1::AbstractString, s2::AbstractString,
     end
 end
 
+"""
+    Unicode.codepoint_notation(c::AbstractChar) -> String
+
+Return the Unicode code point in conventional notation like `"U+0061"`.
+To get an Unicode code point as an integer, use [`codepoint`](@ref).
+
+!!! compat "Julia 1.X"
+    This method was added in Julia 1.X.
+
+# Examples
+
+```jldoctest
+julia> Unicode.codepoint_notation('a')
+"U+0061"
+
+julia> Unicode.codepoint_notation('𠮷')
+"U+20BB7"
+
+```
+"""
+function codepoint_notation(c::AbstractChar)
+    u = isoverlong(c) ? Base.decode_overlong(c) : codepoint(c)
+    "U+" * uppercase(string(u, base=16, pad=4))
 end

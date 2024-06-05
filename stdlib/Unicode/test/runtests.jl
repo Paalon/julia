@@ -2,7 +2,7 @@
 
 using Test
 using Unicode
-using Unicode: normalize, isassigned, julia_chartransform
+using Unicode: normalize, isassigned, julia_chartransform, codepoint_notation
 import Random
 
 Random.seed!(12345)
@@ -533,6 +533,17 @@ isequal_normalized_naive(s1, s2; kws...) = normalize(s1; kws...) == normalize(s2
         # combining characters in the same class are inequivalent if re-ordered:
         @test !isequal_normalized("x\u0334\u0335", "x\u0335\u0334")
     end
+end
+
+@testset "Unicode code point notation used in convention" begin
+    @test codepoint_notation('\0') == "U+0000"
+    @test codepoint_notation('\1') == "U+0001"
+    @test codepoint_notation('a') == "U+0061"
+    @test codepoint_notation('α') == "U+03B1"
+    @test codepoint_notation('𠮷') == "U+20BB7"
+    @test codepoint_notation('\U10ffff') == "U+10FFFF"
+    # overlong
+    @test codepoint_notation("\xc0\xaf"[1]) == "U+002F"
 end
 
 @testset "Docstrings" begin
