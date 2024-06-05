@@ -364,7 +364,7 @@ julia> Unicode.codepoint_notation('𠮷')
 ```
 """
 function codepoint_notation(c::AbstractChar)
-    u = isoverlong(c) ? Base.decode_overlong(c) : codepoint(c)
+    u = Base.isoverlong(c) ? Base.decode_overlong(c) : codepoint(c)
     "U+" * uppercase(string(u, base=16, pad=4))
 end
 
